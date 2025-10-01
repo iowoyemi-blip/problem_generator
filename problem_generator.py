@@ -404,6 +404,52 @@ def generate_radical_operations():
         answer = f"{final_coeff}√{final_radicand}"
 
     return problem, answer
+
+# Add these imports to the TOP of your problem_generator.py file
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Add this new function to the end of the file
+def generate_graphing_linear_equation():
+    """Generates a problem for graphing a linear equation in y=mx+b form."""
+    # Generate a simple slope and y-intercept
+    m = random.randint(-3, 3)
+    b = random.randint(-5, 5)
+    
+    # Avoid a slope of zero to keep it interesting
+    if m == 0: m = 1
+        
+    # Format the problem string
+    b_sign = "+" if b >= 0 else "-"
+    problem = f"Graph the linear equation: y = {m}x {b_sign} {abs(b)}"
+    
+    # --- Create the Graph ---
+    fig, ax = plt.subplots(figsize=(6, 6)) # You can adjust size if you like
+    
+    # Create a range of x-values for our line
+    x_vals = np.linspace(-10, 10, 400)
+    y_vals = m * x_vals + b
+    
+    # Plot the line
+    ax.plot(x_vals, y_vals)
+    
+    # --- Format the Coordinate Plane ---
+    ax.axhline(0, color='black', linewidth=0.7)
+    ax.axvline(0, color='black', linewidth=0.7)
+    
+    ax.set_xlim(-10, 10)
+    ax.set_ylim(-10, 10)
+    
+    # --- NEW LINES TO SET TICKS ---
+    ax.set_xticks(np.arange(-10, 11, 1)) # Add this line
+    ax.set_yticks(np.arange(-10, 11, 1)) # Add this line
+    
+    ax.grid(True, which='both', linestyle='--', linewidth=0.5)
+    ax.set_title("Correct Graph")
+    ax.set_xlabel("x-axis")
+    ax.set_ylabel("y-axis")
+    
+    return problem, fig
 # A dictionary to easily access the functions by name
 TOPICS = {
     "Two-Step Linear Equations": generate_linear_equation,
@@ -419,5 +465,7 @@ TOPICS = {
     "Factoring Binomials": generate_factoring_binomials,
     "Polynomial Operations": generate_polynomial_operations,
     "Exponent Rules": generate_exponent_rules, # Add this
-    "Radical Operations": generate_radical_operations, # Add this
+    "Radical Operations": generate_radical_operations,
+    "Graphing Linear Equations": generate_graphing_linear_equation,
+
 }
