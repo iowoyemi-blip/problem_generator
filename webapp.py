@@ -35,6 +35,15 @@ if 'problem' in st.session_state:
     st.subheader(st.session_state.problem) # Display the problem
 
     st.header("Answer:")
-    # Use an expander to hide the answer until the user clicks on it
-    with st.expander("Click to see the answer"):
-        st.subheader(st.session_state.answer)
+    
+    # Get the answer from the session state
+    answer = st.session_state.answer
+    
+    # Check if the answer is a graph or text
+    if isinstance(answer, str):
+        # If it's a string, display it in an expander
+        with st.expander("Click to see the answer"):
+            st.subheader(answer)
+    else:
+        # If it's not a string, assume it's a graph and display it
+        st.pyplot(answer)
