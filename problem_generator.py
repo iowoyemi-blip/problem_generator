@@ -135,34 +135,109 @@ def generate_multistep_equation_fractions():
 def generate_multistep_inequality():
     """Generates a multi-step inequality where the sign might flip."""
     # Structure: ax + b > c
-    # We'll make 'a' negative sometimes to force a sign flip
     a = random.randint(-7, 7)
     x = random.randint(-5, 5)
     b = random.randint(-10, 10)
     
-    # Ensure 'a' is not zero
     if a == 0: a = -1
 
-    # Choose a random inequality symbol
     symbol = random.choice(['<', '>', '≤', '≥'])
     
-    # Calculate the right side of the inequality
-    c = a * x + b - random.randint(1,5) # Ensure it's not an equality
+    c = a * x + b - random.randint(1,5)
     
-    # Format the problem string
     b_sign = "+" if b >= 0 else "-"
     problem = f"Solve the inequality: {a}x {b_sign} {abs(b)} {symbol} {c}"
     
-    # Determine the correct answer, flipping the sign if 'a' is negative
+    # --- MODIFIED SECTION ---
+    
+    # Determine the correct final symbol, flipping if 'a' is negative
     final_symbol = symbol
     if a < 0:
         if symbol == '<': final_symbol = '>'
         elif symbol == '>': final_symbol = '<'
         elif symbol == '≤': final_symbol = '≥'
         elif symbol == '≥': final_symbol = '≤'
+    
+    # Create the inequality part of the answer
+    inequality_notation = f"x {final_symbol} {x}"
+    
+    # Determine the interval notation based on the final symbol
+    if final_symbol == '>':
+        interval_notation = f"({x}, ∞)"
+    elif final_symbol == '≥':
+        interval_notation = f"[{x}, ∞)"
+    elif final_symbol == '<':
+        interval_notation = f"(-∞, {x})"
+    else: # Must be '≤'
+        interval_notation = f"(-∞, {x}]"
             
-    answer = f"x {final_symbol} {x}"
+    # Combine both notations for the final answer
+    answer = f"Inequality: {inequality_notation} | Interval: {interval_notation}"
 
+    return problem, answer
+
+def generate_compound_inequality():
+    """Generates both conjunction and disjunction compound inequalities."""
+    # Randomly choose which type of inequality to create
+    task = random.choice(["conjunction", "disjunction"])
+    
+    # --- Part 1: Conjunction ("and") Problems ---
+    # Example: -5 < 2x + 1 < 11
+    if task == "conjunction":
+        # Start with a clean integer solution, e.g., -2 < x <= 4
+        x_lower = random.randint(-5, 5)
+        x_upper = x_lower + random.randint(3, 8)
+
+        # Choose the coefficients for the expression mx + c
+        m = random.randint(2, 5)
+        c = random.randint(-7, 7)
+        
+        s1 = random.choice(['<', '≤'])
+        s2 = random.choice(['<', '≤'])
+        
+        # Calculate the outside bounds of the problem
+        left_bound = m * x_lower + c
+        right_bound = m * x_upper + c
+        
+        c_sign = "+" if c >= 0 else "-"
+        problem = f"Solve: {left_bound} {s1} {m}x {c_sign} {abs(c)} {s2} {right_bound}"
+        
+        # Format the Answer
+        inequality_notation = f"{x_lower} {s1} x {s2} {x_upper}"
+        left_bracket = '(' if s1 == '<' else '['
+        right_bracket = ')' if s2 == '<' else ']'
+        interval_notation = f"{left_bracket}{x_lower}, {x_upper}{right_bracket}"
+        answer = f"Inequality: {inequality_notation} | Interval: {interval_notation}"
+
+    # --- Part 2: Disjunction ("or") Problems ---
+    # Example: 3x - 1 < -7 OR 3x - 1 > 5
+    else: 
+        # Start with a clean integer solution, e.g., x < -2 OR x > 2
+        x_lower = random.randint(-5, 0)
+        x_upper = random.randint(1, 6)
+
+        m = random.randint(2, 5) # Using positive m for simplicity
+        c = random.randint(-7, 7)
+        
+        s1 = random.choice(['<', '≤'])
+        s2 = random.choice(['>', '≥'])
+        
+        # Calculate the bounds
+        left_bound = m * x_lower + c
+        right_bound = m * x_upper + c
+        
+        # Format the problem
+        c_sign = "+" if c >= 0 else "-"
+        expression = f"{m}x {c_sign} {abs(c)}"
+        problem = f"Solve: {expression} {s1} {left_bound} OR {expression} {s2} {right_bound}"
+
+        # Format the Answer
+        inequality_notation = f"x {s1} {x_lower} OR x {s2} {x_upper}"
+        left_bracket = ')' if s1 == '<' else ']'
+        right_bracket = '(' if s2 == '>' else '['
+        interval_notation = f"(-∞, {x_lower}{left_bracket} U {right_bracket}{x_upper}, ∞)"
+        answer = f"Inequality: {inequality_notation} | Interval: {interval_notation}"
+            
     return problem, answer
 
 def generate_system_of_equations():
@@ -450,22 +525,347 @@ def generate_graphing_linear_equation():
     ax.set_ylabel("y-axis")
     
     return problem, fig
+
+def generate_factoring_harder_quadratic():
+    """Generates a problem for factoring quadratics like Ax^2 + Bx + C."""
+    # Start with the factored form (ax+b)(cx+d)
+    a = random.randint(2, 4)
+    b = random.randint(-5, 5)
+    c = random.randint(2, 4)
+    d = random.randint(-5, 5)
+
+    if b == 0 or d == 0: # Avoid simple GCF problems
+        b = 1
+        d = -2
+    
+    # Calculate the coefficients A, B, and C for Ax^2 + Bx + C
+    A = a * c
+    B = a * d + b * c
+    C = b * d
+    
+    # Format signs for the problem string
+    B_sign = "+" if B >= 0 else "-"
+    C_sign = "+" if C >= 0 else "-"
+    
+    problem = f"Factor the trinomial: {A}x² {B_sign} {abs(B)}x {C_sign} {abs(C)}"
+    
+    # Format answer string
+    b_ans_sign = "+" if b >= 0 else "-"
+    d_ans_sign = "+" if d >= 0 else "-"
+    answer = f"({a}x {b_ans_sign} {abs(b)})({c}x {d_ans_sign} {abs(d)})"
+    
+    return problem, answer
+
+def generate_graphing_linear_inequality():
+    """Generates a problem for graphing a linear inequality."""
+    m = random.randint(-3, 3)
+    b = random.randint(-5, 5)
+    if m == 0: m = 1
+    
+    symbol = random.choice(['<', '>', '≤', '≥'])
+    
+    problem = f"Graph the linear inequality: y {symbol} {m}x + {b}".replace('+ -', '- ')
+    
+    # --- Create the Graph ---
+    fig, ax = plt.subplots(figsize=(6, 6))
+    x_vals = np.linspace(-10, 10, 400)
+    y_vals = m * x_vals + b
+    
+    # Set line style based on the inequality symbol
+    linestyle = '--' if symbol in ['<', '>'] else '-'
+    ax.plot(x_vals, y_vals, linestyle=linestyle)
+    
+    # Shade the correct region
+    if symbol in ['>', '≥']:
+        ax.fill_between(x_vals, y_vals, 10, color='blue', alpha=0.3)
+    else: # < or ≤
+        ax.fill_between(x_vals, -10, y_vals, color='blue', alpha=0.3)
+        
+    # Standard formatting
+    ax.set_xlim(-10, 10); ax.set_ylim(-10, 10)
+    ax.axhline(0, color='black', lw=0.7); ax.axvline(0, color='black', lw=0.7)
+    ax.set_xticks(np.arange(-10, 11, 1)); ax.set_yticks(np.arange(-10, 11, 1))
+    ax.grid(True, linestyle='--'); ax.set_title("Correct Graph")
+    
+    return problem, fig
+
+def generate_graphing_system_equations():
+    """Generates a problem for graphing a system of two linear equations."""
+    # From generate_system_of_equations
+    x, y = random.randint(-5, 5), random.randint(-5, 5)
+    a, b, c, d = 1, 1, 1, 1
+    while (a * d - b * c) == 0:
+        a, b, c, d = [random.randint(-3, 3) for _ in range(4)]
+        if a==0 or b==0 or c==0 or d==0: a=1 # Avoid horizontal/vertical for simplicity
+        
+    e = a * x + b * y
+    f = c * x + d * y
+    
+    eq1_str = f"y = ({-a/b:.2f})x + ({e/b:.2f})".replace('+ -', '- ')
+    eq2_str = f"y = ({-c/d:.2f})x + ({f/d:.2f})".replace('+ -', '- ')
+    problem = f"Graph the solution to the system:\n{eq1_str}\n{eq2_str}"
+    
+    # --- Create the Graph ---
+    fig, ax = plt.subplots(figsize=(6, 6))
+    x_vals = np.linspace(-10, 10, 400)
+    y1_vals = (-a/b) * x_vals + (e/b)
+    y2_vals = (-c/d) * x_vals + (f/d)
+    
+    ax.plot(x_vals, y1_vals, label=eq1_str)
+    ax.plot(x_vals, y2_vals, label=eq2_str)
+    ax.plot(x, y, 'ro', label=f'Solution: ({x},{y})') # Mark the solution
+    
+    # Standard formatting
+    ax.set_xlim(-10, 10); ax.set_ylim(-10, 10)
+    ax.axhline(0, color='black', lw=0.7); ax.axvline(0, color='black', lw=0.7)
+    ax.set_xticks(np.arange(-10, 11, 1)); ax.set_yticks(np.arange(-10, 11, 1))
+    ax.grid(True, linestyle='--'); ax.set_title("Correct Graph"); ax.legend()
+    
+    return problem, fig
+
+def generate_graphing_system_inequalities():
+    """Generates a problem for graphing a system of two linear inequalities."""
+    m1, b1 = random.randint(-2, 2), random.randint(-4, 4)
+    m2, b2 = random.randint(-2, 2), random.randint(-4, 4)
+    if m1 == 0: m1 = 1
+    if m2 == 0: m2 = -1
+    while m1 == m2: m2 = random.randint(-2, 2)
+        
+    s1, s2 = random.choice(['>', '≥']), random.choice(['<', '≤'])
+    
+    problem = f"Graph the solution to the system:\n\n y {s1} {m1}x + {b1}\n y {s2} {m2}x + {b2}"
+    
+
+    # --- Create the Graph ---
+    fig, ax = plt.subplots(figsize=(6, 6))
+    x_vals = np.linspace(-10, 10, 400)
+    y1_vals = m1 * x_vals + b1
+    y2_vals = m2 * x_vals + b2
+    
+    ax.plot(x_vals, y1_vals, linestyle=('--' if s1 == '>' else '-'))
+    ax.plot(x_vals, y2_vals, linestyle=('--' if s2 == '<' else '-'))
+    
+    # Shade the overlapping region
+    ax.fill_between(x_vals, y1_vals, y2_vals, where=y2_vals > y1_vals, color='blue', alpha=0.3)
+    
+    # Standard formatting
+    ax.set_xlim(-10, 10); ax.set_ylim(-10, 10)
+    ax.axhline(0, color='black', lw=0.7); ax.axvline(0, color='black', lw=0.7)
+    ax.set_xticks(np.arange(-10, 11, 1)); ax.set_yticks(np.arange(-10, 11, 1))
+    ax.grid(True, linestyle='--'); ax.set_title("Correct Graph")
+    
+    return problem, fig
+
+def generate_order_of_operations():
+    """Generates a problem using the order of operations (PEMDAS)."""
+    # Structure: a * (b + c) - d^2
+    a = random.randint(2, 5)
+    b = random.randint(3, 8)
+    c = random.randint(2, 6)
+    d = random.randint(2, 4)
+    
+    problem = f"Evaluate the expression: {a} * ({b} + {c}) - {d}²"
+    
+    # Calculate the answer following PEMDAS
+    # 1. Parentheses
+    parentheses_val = b + c
+    # 2. Exponents
+    exponent_val = d ** 2
+    # 3. Multiplication
+    multiplication_val = a * parentheses_val
+    # 4. Subtraction
+    answer = multiplication_val - exponent_val
+    
+    return problem, str(answer) # Return answer as a string
+
+def generate_literal_equation():
+    """Generates a problem for solving a literal equation for a specific variable."""
+    # Store common formulas and their possible solutions
+    formulas = [
+        ("Perimeter of a rectangle: P = 2l + 2w", "l", "l = (P - 2w) / 2"),
+        ("Perimeter of a rectangle: P = 2l + 2w", "w", "w = (P - 2l) / 2"),
+        ("Slope-intercept form: y = mx + b", "x", "x = (y - b) / m"),
+        ("Area of a trapezoid: A = (1/2)h(b1 + b2)", "h", "h = 2A / (b1 + b2)"),
+        ("Volume of a cylinder: V = πr²h", "h", "h = V / (πr²)"),
+    ]
+    
+    # Randomly pick one of the formulas and its parts
+    formula_str, variable, solution = random.choice(formulas)
+    
+    problem = f"Given the formula {formula_str}, solve for {variable}."
+    answer = solution
+    
+    return problem, answer
+
+def generate_word_problem():
+    """Generates a word problem for a one-variable equation or inequality."""
+    task = random.choice(["equation", "inequality"])
+    
+    if task == "equation":
+        # Scenario: Consecutive integers
+        start_int = random.randint(5, 50)
+        num1, num2, num3 = start_int, start_int + 1, start_int + 2
+        total = num1 + num2 + num3
+        
+        problem = f"The sum of three consecutive integers is {total}. What is the smallest of the three integers?"
+        answer = f"The smallest integer is {start_int}."
+        
+    else: # Inequality
+        # Scenario: Budgeting
+        budget = random.randint(80, 200)
+        item_cost = random.randint(5, 15)
+        flat_fee = random.randint(10, 25)
+        
+        # Calculate the max number of items
+        max_items = (budget - flat_fee) // item_cost
+        
+        problem = (f"You have a budget of at most ${budget} for a party. "
+                   f"A company charges a ${flat_fee} flat fee plus ${item_cost} per person. "
+                   f"What is the maximum number of people that can attend?")
+        answer = f"The maximum number of people is {max_items}."
+
+    return problem, answer
+
+def generate_domain_range_graph():
+    """Generates a graph of a function and determines its domain and range."""
+    func_type = random.choice(['linear', 'quadratic', 'absolute_value', 'square_root', 'piecewise_linear'])
+    
+    # --- Setup the Plot ---
+    fig, ax = plt.subplots(figsize=(6, 6))
+    x_vals = np.linspace(-10, 10, 400)
+    
+    # --- Generate Function Based on Type ---
+    
+    if func_type == 'linear':
+        m, b = random.randint(-2, 2), random.randint(-4, 4)
+        if m == 0: m = 1
+        y_vals = m * x_vals + b
+        ax.plot(x_vals, y_vals)
+        domain_inequality = "All real numbers"
+        domain_interval = "(-∞, ∞)"
+        range_inequality = "All real numbers"
+        range_interval = "(-∞, ∞)"
+
+    elif func_type == 'quadratic':
+        h, k = random.randint(-5, 5), random.randint(-5, 5)
+        a = random.choice([-2, -1, 1, 2])
+        y_vals = a * ((x_vals - h)**2) + k
+        ax.plot(x_vals, y_vals)
+        domain_inequality = "All real numbers"
+        domain_interval = "(-∞, ∞)"
+        if a > 0:
+            range_inequality = f"y ≥ {k}"
+            range_interval = f"[{k}, ∞)"
+        else:
+            range_inequality = f"y ≤ {k}"
+            range_interval = f"(-∞, {k}]"
+            
+    elif func_type == 'absolute_value':
+        h, k = random.randint(-5, 5), random.randint(-5, 5)
+        a = random.choice([-2, -1, 1, 2])
+        y_vals = a * np.abs(x_vals - h) + k
+        ax.plot(x_vals, y_vals)
+        domain_inequality = "All real numbers"
+        domain_interval = "(-∞, ∞)"
+        if a > 0:
+            range_inequality = f"y ≥ {k}"
+            range_interval = f"[{k}, ∞)"
+        else:
+            range_inequality = f"y ≤ {k}"
+            range_interval = f"(-∞, {k}]"
+
+    elif func_type == 'square_root':
+        h, k = random.randint(-5, 5), random.randint(-5, 5)
+        a = random.choice([-2, -1, 1, 2])
+        # Only plot where x-h >= 0
+        valid_x = x_vals[x_vals >= h]
+        y_vals = a * np.sqrt(valid_x - h) + k
+        ax.plot(valid_x, y_vals)
+        ax.plot(h, k, 'o', markerfacecolor='blue', markeredgecolor='blue') # Solid dot at start
+        domain_inequality = f"x ≥ {h}"
+        domain_interval = f"[{h}, ∞)"
+        if a > 0:
+            range_inequality = f"y ≥ {k}"
+            range_interval = f"[{k}, ∞)"
+        else:
+            range_inequality = f"y ≤ {k}"
+            range_interval = f"(-∞, {k}]"
+            
+    elif func_type == 'piecewise_linear':
+        # First piece
+        x1_break = random.randint(-5, -1)
+        m1, b1 = random.randint(-2, 2), random.randint(-3, 3)
+        if m1 == 0: m1 = 1
+        x1_vals = np.linspace(-10, x1_break, 100)
+        y1_vals = m1 * x1_vals + b1
+        ax.plot(x1_vals, y1_vals, 'b-')
+        ax.plot(x1_break, m1*x1_break+b1, 'o', markerfacecolor='white', markeredgecolor='blue', markersize=8)
+
+        # Second piece
+        x2_break = random.randint(x1_break + 2, 6)
+        m2, b2 = random.randint(-2, 2), random.randint(-3, 3)
+        if m2 == 0: m2 = -1
+        x2_vals = np.linspace(x2_break, 10, 100)
+        y2_vals = m2 * x2_vals + b2
+        ax.plot(x2_vals, y2_vals, 'b-')
+        ax.plot(x2_break, m2*x2_break+b2, 'o', markerfacecolor='blue', markeredgecolor='blue', markersize=8)
+        
+        # Domain and Range for piecewise
+        domain_inequality = f"x < {x1_break} or x ≥ {x2_break}"
+        domain_interval = f"(-∞, {x1_break}) U [{x2_break}, ∞)"
+        
+        y1_end = m1*x1_break+b1
+        y2_start = m2*x2_break+b2
+        
+        if m1 > 0: r1_int, r1_ineq = f"(-∞, {y1_end:.1f})", f"y < {y1_end:.1f}"
+        else: r1_int, r1_ineq = f"({y1_end:.1f}, ∞)", f"y > {y1_end:.1f}"
+        
+        if m2 > 0: r2_int, r2_ineq = f"[{y2_start:.1f}, ∞)", f"y ≥ {y2_start:.1f}"
+        else: r2_int, r2_ineq = f"(-∞, {y2_start:.1f}]", f"y ≤ {y2_start:.1f}"
+            
+        range_inequality = f"{r1_ineq} or {r2_ineq}"
+        range_interval = f"{r1_int} U {r2_int}"
+
+    # --- Standard Formatting ---
+    ax.set_xlim(-10, 10); ax.set_ylim(-10, 10)
+    ax.axhline(0, color='black', lw=0.7); ax.axvline(0, color='black', lw=0.7)
+    ax.set_xticks(np.arange(-10, 11, 2)); ax.set_yticks(np.arange(-10, 11, 2))
+    ax.grid(True, linestyle='--')
+    ax.set_title("Determine the Domain and Range")
+    
+    problem = fig
+    answer = (f"Domain (Inequality): {domain_inequality}\n"
+              f"Domain (Interval): {domain_interval}\n\n"
+              f"Range (Inequality): {range_inequality}\n"
+              f"Range (Interval): {range_interval}")
+              
+    return problem, answer
+
+
 # A dictionary to easily access the functions by name
 TOPICS = {
+    "Order of Operations": generate_order_of_operations,
     "Two-Step Linear Equations": generate_linear_equation,
+    "Multi-Step Equations (Fractions)": generate_multistep_equation_fractions,
+    "Literal Equations": generate_literal_equation,
+    "One-Variable Word Problems": generate_word_problem,
     "Simplify Expressions": generate_simplify_expression,
+    "Polynomial Operations": generate_polynomial_operations,
     "Factor Simple Quadratics": generate_factoring_quadratic,
+    "Factoring Binomials": generate_factoring_binomials,
+    "Factoring Quadratics (A>1)": generate_factoring_harder_quadratic,
     "Slope Between Two Points": generate_slope_from_points,
     "Evaluating Functions": generate_evaluate_function,
-    "Multi-Step Equations (Fractions)": generate_multistep_equation_fractions,
     "Multi-Step Inequalities": generate_multistep_inequality,
+    "Compound Inequalities": generate_compound_inequality,
     "Systems of Equations": generate_system_of_equations,
     "Equation from Two Points": generate_write_equation_from_points,
     "Parallel & Perpendicular Lines": generate_parallel_perpendicular_line,
-    "Factoring Binomials": generate_factoring_binomials,
-    "Polynomial Operations": generate_polynomial_operations,
     "Exponent Rules": generate_exponent_rules, # Add this
     "Radical Operations": generate_radical_operations,
     "Graphing Linear Equations": generate_graphing_linear_equation,
-
+    "Graphing Linear Inequalities": generate_graphing_linear_inequality,
+    "Graphing Systems of Equations": generate_graphing_system_equations,
+    "Graphing Systems of Inequalities": generate_graphing_system_inequalities,
+    "Visual Domain and Range": generate_domain_range_graph,
 }
