@@ -657,26 +657,52 @@ def generate_graphing_system_inequalities():
     return problem, fig
 
 def generate_order_of_operations():
-    """Generates a problem using the order of operations (PEMDAS)."""
-    # Structure: a * (b + c) - d^2
-    a = random.randint(2, 5)
-    b = random.randint(3, 8)
-    c = random.randint(2, 6)
-    d = random.randint(2, 4)
+    """Generates a complex problem using the order of operations (PEMDAS)."""
+    # Randomly choose one of three problem templates for variety
+    template = random.choice([1, 2, 3])
     
-    problem = f"Evaluate the expression: {a} * ({b} + {c}) - {d}²"
+    # Template 1: No parentheses, multiple operations
+    if template == 1:
+        a, b, c = random.randint(10, 20), random.randint(2, 4), random.randint(2, 3)
+        res = random.randint(2, 5)
+        e = random.randint(2, 4)
+        d = res * e
+        
+        problem = f"Evaluate: {a} - {b} · {c}² + {d} ÷ {e}"
+        # Calculation: a - (b * c^2) + (d / e)
+        answer = a - (b * (c**2)) + (d / e)
+
+    # Template 2: Parentheses with one operation
+    elif template == 2:
+        a, b = random.randint(15, 30), random.randint(2, 4)
+        res = random.randint(2, 4)
+        d = random.randint(2, 3)
+        c = res * d
+        e, f = random.randint(2, 3), random.randint(1, 10)
+        
+        problem = f"Evaluate: {a} - {b}² · ({c} ÷ {d}) - {e}³ + {f}"
+        # Calculation: a - (b^2 * (c/d)) - e^3 + f
+        answer = a - ((b**2) * (c/d)) - (e**3) + f
     
-    # Calculate the answer following PEMDAS
-    # 1. Parentheses
-    parentheses_val = b + c
-    # 2. Exponents
-    exponent_val = d ** 2
-    # 3. Multiplication
-    multiplication_val = a * parentheses_val
-    # 4. Subtraction
-    answer = multiplication_val - exponent_val
-    
-    return problem, str(answer) # Return answer as a string
+    # Template 3: Parentheses with multiple operations
+    else:
+        c, d = random.randint(2, 4), random.randint(2, 5)
+        res = random.randint(2, 4)
+        # Ensure the denominator (b^3 - c) is not zero
+        b = random.randint(2, 3)
+        while (b**3 - c) == 0:
+            c = random.randint(2, 4)
+        
+        denominator = (b**3 - c)
+        a = res * denominator # Guarantees clean division
+        
+        e, f, g, h = random.randint(3, 6), random.randint(2, 4), random.randint(2, 4), random.randint(1, 15)
+
+        problem = f"Evaluate: {a} ÷ ({b}³ - {c}) · {d} - {e} · {f} - {g}² + {h}"
+        # Calculation: (a / (b^3 - c) * d) - (e * f) - g^2 + h
+        answer = (a / denominator * d) - (e * f) - (g**2) + h
+        
+    return problem, str(int(answer)) # Return the final integer answer as a string
 
 def generate_literal_equation():
     """Generates a problem for solving a literal equation for a specific variable."""
